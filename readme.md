@@ -8,7 +8,9 @@
 1. In Google Drive, open the Google Sheets file you want to use, click File -> Download -> Comma-separated values(csv, current sheet)
 2. Add any csv file that you want to use to the directory "/anki-csv-main", you can use multiple csv files at once
 3. Place any associated audio files in the directory "/anki-csv-main/audio_files", these must be placed directly in the directory itself and cannot be nested in folders
-
+## If you do not have a Python installed
+1. If you are on mac, python should be installed automatically and you can skip this step
+2. If you are on windows, consult [this guide](https://realpython.com/installing-python/#how-to-install-python-on-windows)
 ## Run Script
 1. Open up the command line or terminal - if you do not know how, consult [this article](https://www.ionos.com/help/email/troubleshooting-mail-basicmail-business/access-the-command-prompt-or-terminal/#:~:text=With%20the%20command%20prompt%20in,command%20line%20for%20your%20computer.)
 2. Type: "cd " followed by the path of anki-csv-main. For example: "cd /Users/keenan/Downloads/anki-csv-main"

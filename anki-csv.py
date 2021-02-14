@@ -137,5 +137,8 @@ for filename in os.listdir(vocab_dir):
                 package = genanki.Package(deck)
 
                 package.media_files = audio_filenames
+
+                if not os.path.exists('vocab-decks'):
+                    os.makedirs('vocab-decks')
                 
                 package.write_to_file('./vocab-decks/' + filename + '_Lesson_' + lesson + '.apkg')

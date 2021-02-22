@@ -1,4 +1,5 @@
 import os
+import os.path
 import csv
 import genanki
 import datetime
@@ -102,6 +103,8 @@ def sortRows(data):
     return episodes
 
 decks = []
+audio_files = []
+
 
 for filename in os.listdir(vocab_dir):
     if filename.endswith('.csv'):
@@ -120,7 +123,6 @@ for filename in os.listdir(vocab_dir):
                         deck_id,
                         deck_name
                     )
-                    audio_filenames = []
                     i = 0
                     for card in cards:
                         note = genanki.Note(
@@ -139,12 +141,17 @@ for filename in os.listdir(vocab_dir):
                         )
                         deck.add_note(note)
                         if ('audio' in card and not card['audio'] == ''):
-                            audio_filenames.append('./audio_files/' + card['audio'])
+                            path = './audio_files/' + card['audio']
+                            if (os.path.exists(path)):
+                                audio_files.append(path)
+                            else:
+                                print('FILE NOT FOUND: ' + 'episode ' +  card['episode'] + ':  ' + path)
                         i+=1
-
                     decks.append(deck)
 
-package = genanki.Package(decks, audio_filenames)
+print(audio_files)
+package = genanki.Package(decks)
+package.media_files = audio_files
 
 if not os.path.exists('vocab-decks'):
     os.makedirs('vocab-decks')

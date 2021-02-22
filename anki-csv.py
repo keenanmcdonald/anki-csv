@@ -2,8 +2,9 @@ import os
 import csv
 import genanki
 import datetime
+import hashlib
 
-vocab_dir = './'
+vocab_dir = './vocab-list'
 model_id = 20201207145042
 model = genanki.Model(
     model_id,
@@ -84,17 +85,23 @@ model = genanki.Model(
 )
 
 def sortRows(data):
-    lessons = {}
+    episodes = {}
     headers = data[0]
     for row in data[1:]:
         sortedRow = {}
         for i in range(len(row)):
             sortedRow[headers[i].lower()] = row[i]
-        if (sortedRow['lesson'] in lessons):
-            lessons[sortedRow['lesson']].append(sortedRow)
+        
+        if (sortedRow['episode'] in episodes):
+            if (sortedRow['lesson'] in episodes[sortedRow['episode']]):
+                episodes[sortedRow['episode']][sortedRow['lesson']].append(sortedRow)
+            else:
+                episodes[sortedRow['episode']][sortedRow['lesson']] = [sortedRow]
         else:
-            lessons[sortedRow['lesson']] = [sortedRow]
-    return lessons
+            episodes[sortedRow['episode']] = {}
+    return episodes
+
+decks = []
 
 for filename in os.listdir(vocab_dir):
     if filename.endswith('.csv'):
@@ -103,42 +110,44 @@ for filename in os.listdir(vocab_dir):
             reader = csv.reader(vocab_file, delimiter=',')
             data = list(reader)
 
-            lessons = sortRows(data)
-            print(lessons)
+            episodes = sortRows(data)
 
-            for lesson, cards in lessons.items():
-                print(cards[0]['episode'], lesson)
-                deck = genanki.Deck(
-                    model_id,
-                    'Immersion Club::' + cards[0]['course'] + '::Episode ' + f"{int(cards[0]['episode']):02d}" + '::Lesson ' + f'{int(lesson):02d}'
-                )
-                audio_filenames = []
-                i = 0
-                for card in cards:
-                    note = genanki.Note(
-                        model=model,
-                        fields=[
-                            card['infinitive'],
-                            card['part of speech'],
-                            card['japanese'], 
-                            card['example'], 
-                            card['lesson'],
-                            '[sound:' + card['audio'] + ']' if ('audio' in card) else '',
-                            card['episode'],
-                            card['course']
-                        ],
-                        sort_field = int(card['episode']) * 10000 + int(lesson) * 100 + i
+            for episode, lessons in episodes.items():
+                for lesson, cards in lessons.items():
+                    deck_name = 'Immersion Club::' + cards[0]['course'] + '::Episode ' + f"{int(cards[0]['episode']):02d}" + '::Lesson ' + f'{int(lesson):02d}'
+                    deck_id = hash(deck_name)
+                    deck = genanki.Deck(
+                        deck_id,
+                        deck_name
                     )
-                    deck.add_note(note)
-                    if ('audio' in card and not card['audio'] == ''):
-                        audio_filenames.append('./audio_files/' + card['audio'])
-                    i+=1
+                    audio_filenames = []
+                    i = 0
+                    for card in cards:
+                        note = genanki.Note(
+                            model=model,
+                            fields=[
+                                card['infinitive'],
+                                card['part of speech'],
+                                card['japanese'], 
+                                card['example'], 
+                                card['lesson'],
+                                '[sound:' + card['audio'] + ']' if ('audio' in card) else '',
+                                card['episode'],
+                                card['course']
+                            ],
+                            sort_field = int(card['episode']) * 10000 + int(lesson) * 100 + i
+                        )
+                        deck.add_note(note)
+                        if ('audio' in card and not card['audio'] == ''):
+                            audio_filenames.append('./audio_files/' + card['audio'])
+                        i+=1
 
-                package = genanki.Package(deck)
+                    decks.append(deck)
 
-                package.media_files = audio_filenames
+package = genanki.Package(decks, audio_filenames)
 
-                if not os.path.exists('vocab-decks'):
-                    os.makedirs('vocab-decks')
-                
-                package.write_to_file('./vocab-decks/' + filename + '_Lesson_' + lesson + '.apkg')
+if not os.path.exists('vocab-decks'):
+    os.makedirs('vocab-decks')
+
+package.write_to_file('./vocab-decks/' + filename + '.apkg')
+

@@ -6,7 +6,7 @@
 3. Extract the zip file
 ## File setup from Drive
 1. In Google Drive, open the Google Sheets file you want to use, click File -> Download -> Comma-separated values(csv, current sheet)
-2. Add any csv file that you want to use to the directory "/anki-csv-main", you can use multiple csv files at once
+2. Add any csv file that you want to use to the directory "/anki-csv-main/vocab-list", you can use multiple csv files at once
 3. Place any associated audio files in the directory "/anki-csv-main/audio_files", these must be placed directly in the directory itself and cannot be nested in folders
 ## If you do not have a Python installed
 1. If you are on mac, python should be installed automatically and you can skip this step
